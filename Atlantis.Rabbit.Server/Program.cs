@@ -33,6 +33,8 @@ namespace Atlantis.Rabbit.Server
         }
     }
 
+    
+
     public class AddWaterMarkDto
     {
         /// <summary>

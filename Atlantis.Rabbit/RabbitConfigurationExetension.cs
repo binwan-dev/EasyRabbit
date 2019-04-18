@@ -38,6 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 builder.Metadatas.Add(type);
             }
             services.AddSingleton(builder);
+            services.AddSingleton<ISerializer>(builder.Serializer);
             services.AddHostedService<RabbitHostService>();
             ServiceProvider=services.BuildServiceProvider();
             
