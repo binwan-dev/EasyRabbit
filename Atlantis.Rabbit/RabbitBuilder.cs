@@ -11,14 +11,16 @@ namespace Atlantis.Rabbit
         public RabbitBuilder()
         {
             Metadatas=new List<Type>();
-            Serializer=new DefaultSerializer();
+            JsonSerializer=new DefaultSerializer();
         }
         
         public RabbitServerSetting ServerOptions{get;set;}
 
         public string[] ScanAssemblies{get;set;}
 
-        public ISerializer Serializer{get;set;}
+        public ISerializer JsonSerializer{get;set;}
+
+        public ISerializer BinarySerializer{get;set;}
 
         internal IList<Type> Metadatas {get;set;}
 

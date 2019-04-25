@@ -12,13 +12,13 @@ namespace Atlantis.Rabbit
     public abstract class RabbitMQMessagingHandler<TMessage> :IRabbitMessagingHandler
     {
         private readonly ILogger<RabbitMQMessagingHandler<TMessage>> _log;
-        private readonly ISerializer _serialzer;
+        private readonly RabbitBuilder _builder;
 
         public RabbitMQMessagingHandler()
         {
             var serviceProvider=RabbitConfigurationExetension.ServiceProvider;
             _log=serviceProvider.GetService<ILogger<RabbitMQMessagingHandler<TMessage>>>();
-            _serialzer=serviceProvider.GetService<ISerializer>();
+            _builder=serviceProvider.GetService<RabbitBuilder>();
         }
 
         public abstract string Queue { get; }
@@ -57,7 +57,7 @@ namespace Atlantis.Rabbit
 
             try
             {
-                _log.LogInformation($"队列：{Queue}，接收到MQ消息：{_serialzer.Serialize(message)}");
+                _log.LogInformation($"队列：{Queue}，接收到MQ消息：{_builder.JsonSerializer.Serialize(message)}");
                 await Handle(message);
                 connection.AckMessage(e.DeliveryTag);
             }
@@ -73,13 +73,13 @@ namespace Atlantis.Rabbit
 
         protected virtual TMessage Deserialize(byte[] messageBody)
         {
-            TMessage t = _serialzer.Deserialize<TMessage>(messageBody);
+            TMessage t = _builder.JsonSerializer.Deserialize<TMessage>(messageBody);
             return t;
         }
 
         protected virtual TMessage DeserializeByJson(byte[] messageBody)
         {
-            return _serialzer.Deserialize<TMessage>(messageBody);
+            return _builder.JsonSerializer.Deserialize<TMessage>(messageBody);
         }
         
         private string GetErrorByteBody(byte[] body)

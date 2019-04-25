@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 
 namespace Atlantis.Rabbit.Server
 {
@@ -22,19 +23,25 @@ namespace Atlantis.Rabbit.Server
                             Host="120.77.144.4",
                             UserName="admin",
                             Password="1qa@WS3ed",
-                            Port=-1
+                            Port=-1,
+                            VirtualHost="dev"
                         };
                         builder.ScanAssemblies=new string[]{typeof(Program).Assembly.FullName};
                     });
+                    var message=new AddWaterMarkDto(){FileToken="11",WaterMarkText="22"};
+                    var headers=new Dictionary<string,object>();
+                    headers.Add("TTL",864000000);
+
+                    var publisher=services.BuildServiceProvider().GetService<IRabbitMessagePublisher>();
+                    publisher.Publish(message,headers);
                 })
                 .RunConsoleAsync();
-
             
         }
     }
 
-    
 
+    [RabbitPublishTo(Exchange="cap.default.router",RoutingKey="image.water.mark")]
     public class AddWaterMarkDto
     {
         /// <summary>

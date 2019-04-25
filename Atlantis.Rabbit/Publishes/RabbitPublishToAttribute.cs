@@ -1,28 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Atlantis.Rabbit
 {
     public class RabbitPublishToAttribute : Attribute
     {
-        public RabbitPublishToAttribute(string exchange, string groupName, PublishMessageSerialzeType serializeType, string routingKey = "*") : this(exchange, routingKey, groupName, serializeType)
-        { }
-
-        public RabbitPublishToAttribute(string exchange, string groupName, string routingKey = "*") : this(exchange, routingKey, groupName, PublishMessageSerialzeType.Proto)
-        { }
-
-        public RabbitPublishToAttribute(string exchange, string routingKey, string groupName, PublishMessageSerialzeType serializeType)
+        public RabbitPublishToAttribute()
         {
-            Exchange = exchange;
-            GroupName = groupName;
-            SerializeType = serializeType;
-            RoutingKey = routingKey;
+            SerializeType=PublishMessageSerialzeType.Json;
+            Headers=new Dictionary<string,object>();
         }
 
         public string Exchange { get; set; }
 
-        public string GroupName { get; set; }
-
         public string RoutingKey { get; set; }
+
+        public string VirtualHost{get;set;}
+
+        public IDictionary<string,object> Headers{get;set;}
 
         public PublishMessageSerialzeType SerializeType { get; set; }
     }
