@@ -22,18 +22,19 @@ namespace Atlantis.Rabbit
         private readonly string _receiveExchange;
         private readonly string _routingKey;
         private readonly long _ttl;
+        private readonly IServiceProvider _serviceProvider;
 
         private int _connecting = 0;
         private int _reconnectTimes=1;
 
         private Type _handlerType;
 
-        public RabbitConnection(
-            IRabbitMessagingHandler handler,RabbitServerSetting setting,IServiceProvider serviceProvider)
+        public RabbitConnection(IRabbitMessagingHandler handler)
         {
+            var builder=RabbitBuilder.ServiceProvider.GetService<RabbitBuilder>();
             _receiveQueue = handler.Queue ?? throw new ArgumentNullException("The queue must be declare!");
             _receiveExchange = handler.Exchange ?? throw new ArgumentNullException("The exchange must be declare!");
-            _setting = setting ?? throw new ArgumentNullException("The rabbitmq host setting must be declare!");
+            _setting = builder.ServerOptions ?? throw new ArgumentNullException("The rabbitmq host setting must be declare!");
             _receiveAction = handler.Handle;
             _routingKey=handler.RoutingKey??"#";
             _handlerType=handler.GetType();
@@ -44,8 +45,9 @@ namespace Atlantis.Rabbit
                 _setting.VirtualHost=handler.VirtualHost;
             }
 
-            _log = serviceProvider.GetService<ILogger<RabbitConnection>>();
-            _serializer = serviceProvider.GetService<ISerializer>();
+            _log = RabbitBuilder.ServiceProvider.GetService<ILogger<RabbitConnection>>();
+            _serializer = RabbitBuilder.ServiceProvider.GetService<ISerializer>();
+            _serviceProvider=RabbitBuilder.ServiceProvider;
         }
 
         public IConnection Connection => _connection;
@@ -156,7 +158,7 @@ namespace Atlantis.Rabbit
                 var consume = new EventingBasicConsumer(_receiveChannel);
                 consume.Received +=(model, e) => 
                 {
-                    using(var scope=RabbitConfigurationExetension.ServiceProvider.CreateScope())
+                    using(var scope=_serviceProvider.CreateScope())
                     {
                         var instance=(IRabbitMessagingHandler)scope.ServiceProvider.GetService(_handlerType);
                         instance.Handle(this,model,e);

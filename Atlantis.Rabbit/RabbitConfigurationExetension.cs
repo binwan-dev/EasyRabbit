@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Atlantis.Rabbit;
 using Atlantis.Rabbit.Utilies;
@@ -8,8 +9,6 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class RabbitConfigurationExetension
     {
-        public static IServiceProvider ServiceProvider;
-
         public static IServiceCollection AddRabbit(
             this IServiceCollection services,
             Action<RabbitBuilder> builderAction)
@@ -33,16 +32,23 @@ namespace Microsoft.Extensions.DependencyInjection
                 typeof(IRabbitMessagingHandler), false, assemblies.ToArray());
             foreach (var type in types)
             {
-                if (type.IsAbstract) continue;
+                var hasCount=builder.Metadatas.Count(p=>p.FullName==type.FullName);
+                if (type.IsAbstract||hasCount>0) continue;
                 services.AddScoped(type);
                 builder.Metadatas.Add(type);
             }
             services.AddSingleton(builder);
             services.AddHostedService<RabbitHostService>();
-            ServiceProvider=services.BuildServiceProvider();
             
             return services;
 
+        }
+
+        public static IServiceProvider UseRabbit(
+            this IServiceProvider serviceProvider)
+        {
+            RabbitBuilder.ServiceProvider=serviceProvider;
+            return serviceProvider;
         }
 
         // public static Configuration RegisterRabbitMQ(this Configuration configuration, string rabbitMQSettingConfigName)

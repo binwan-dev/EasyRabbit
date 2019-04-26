@@ -16,7 +16,7 @@ namespace Atlantis.Rabbit
 
         public RabbitMQMessagingHandler()
         {
-            var serviceProvider=RabbitConfigurationExetension.ServiceProvider;
+            var serviceProvider=RabbitBuilder.ServiceProvider;
             _log=serviceProvider.GetService<ILogger<RabbitMQMessagingHandler<TMessage>>>();
             _builder=serviceProvider.GetService<RabbitBuilder>();
         }

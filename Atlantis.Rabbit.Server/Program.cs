@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
+using Serilog;
+using Serilog.AspNetCore;
 
 namespace Atlantis.Rabbit.Server
 {
@@ -14,8 +16,19 @@ namespace Atlantis.Rabbit.Server
         static async Task Main(string[] args)
         {
             await new HostBuilder()
+                .ConfigureLogging((hostContext, configLogging) =>
+                {
+                    Log.Logger = new LoggerConfiguration()
+                    .ReadFrom.Configuration(hostContext.Configuration)
+                    .Enrich.FromLogContext()
+                    .WriteTo.Console()
+                    .CreateLogger();
+                    configLogging.AddSerilog();
+                })
                 .ConfigureServices((hostContext, services) =>
                 {
+                    services.AddLogging();
+                    services.AddSingleton<Microsoft.Extensions.Logging.ILoggerFactory,SerilogLoggerFactory>();
                     services.AddRabbit(builder=>
                     {
                         builder.ServerOptions=new RabbitServerSetting()
@@ -26,13 +39,14 @@ namespace Atlantis.Rabbit.Server
                             Port=-1,
                             VirtualHost="dev"
                         };
-                        builder.ScanAssemblies=new string[]{typeof(Program).Assembly.FullName};
+                        builder.ScanAssemblies=new string[]{typeof(Program).Assembly.FullName,typeof(Program).Assembly.FullName};
                     });
                     var message=new AddWaterMarkDto(){FileToken="11",WaterMarkText="22"};
                     var headers=new Dictionary<string,object>();
                     headers.Add("TTL",864000000);
+                    var serviceProvider=services.BuildServiceProvider().UseRabbit();
 
-                    var publisher=services.BuildServiceProvider().GetService<IRabbitMessagePublisher>();
+                    var publisher=serviceProvider.GetService<IRabbitMessagePublisher>();
                     publisher.Publish(message,headers);
                 })
                 .RunConsoleAsync();

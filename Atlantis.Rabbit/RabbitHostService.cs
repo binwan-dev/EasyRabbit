@@ -13,7 +13,6 @@ namespace Atlantis.Rabbit
     {
         private readonly ILogger<RabbitHostService> _log;
         private readonly RabbitBuilder _builder;
-        private readonly IServiceProvider _serviceProvider;
         private readonly IList<RabbitConnection> _connections;
 
         public RabbitHostService(
@@ -22,7 +21,6 @@ namespace Atlantis.Rabbit
         {
             _log=log;
             _builder=builder;
-            _serviceProvider=RabbitConfigurationExetension.ServiceProvider;
             _connections=new List<RabbitConnection>();
         }
         
@@ -30,7 +28,7 @@ namespace Atlantis.Rabbit
         {
             foreach (var type in _builder.Metadatas)
             {
-                var instance = (IRabbitMessagingHandler)_serviceProvider.GetService(type);
+                var instance = (IRabbitMessagingHandler)RabbitBuilder.ServiceProvider.GetService(type);
                 if (!instance.IsEnable)
                 {
                     continue;
@@ -40,11 +38,12 @@ namespace Atlantis.Rabbit
                 //    throw new ArgumentNullException($"The virtualhost is null in the handler({instance.GetType().Name})!");
                 //}
                 var hostSetting = _builder.ServerOptions;
-                var rabbitContext = new RabbitConnection(instance, hostSetting, _serviceProvider);
+                var rabbitContext = new RabbitConnection(instance);
                 rabbitContext.Start();
                 _connections.Add(rabbitContext);
             }
             _builder.Metadatas.Clear();
+            _log.LogInformation("Atlantis.Rabbit is started!");
             return Task.CompletedTask;
         }
 
@@ -55,6 +54,7 @@ namespace Atlantis.Rabbit
                 connection.Close();
             }
             _connections.Clear();
+            _log.LogInformation("Atlantis.Rabbit is stopped!");
             return Task.CompletedTask;
         }
     }
