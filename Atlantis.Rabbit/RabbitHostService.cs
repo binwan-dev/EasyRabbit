@@ -14,18 +14,25 @@ namespace Atlantis.Rabbit
         private readonly ILogger<RabbitHostService> _log;
         private readonly RabbitBuilder _builder;
         private readonly IList<RabbitConnection> _connections;
+        private static bool _isStarted = false;
 
         public RabbitHostService(
             ILogger<RabbitHostService> log,
             RabbitBuilder builder)
         {
-            _log=log;
-            _builder=builder;
-            _connections=new List<RabbitConnection>();
+            _log = log;
+            _builder = builder;
+            _connections = new List<RabbitConnection>();
         }
-        
+
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            if (_isStarted)
+            {
+                return Task.CompletedTask;
+            }
+            _isStarted = true;
+
             foreach (var type in _builder.Metadatas)
             {
                 var instance = (IRabbitMessagingHandler)RabbitBuilder.ServiceProvider.GetService(type);
@@ -49,7 +56,13 @@ namespace Atlantis.Rabbit
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            foreach(var connection in _connections)
+            if(!_isStarted)
+            {
+                return Task.CompletedTask;
+            }
+            _isStarted=false;
+
+            foreach (var connection in _connections)
             {
                 connection.Close();
             }

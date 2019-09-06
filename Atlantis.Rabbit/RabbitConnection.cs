@@ -156,12 +156,12 @@ namespace Atlantis.Rabbit
                 _receiveChannel.QueueBind(_receiveQueue, _receiveExchange, _routingKey, dic);
                 _receiveChannel.BasicQos(0, 1, false);
                 var consume = new EventingBasicConsumer(_receiveChannel);
-                consume.Received +=(model, e) => 
+                consume.Received += async (model, e) => 
                 {
                     using(var scope=_serviceProvider.CreateScope())
                     {
                         var instance=(IRabbitMessagingHandler)scope.ServiceProvider.GetService(_handlerType);
-                        instance.Handle(this,model,e);
+                        await instance.Handle(this,model,e);
                     }
                 };
                 _receiveChannel.BasicConsume(_receiveQueue, false, consume);

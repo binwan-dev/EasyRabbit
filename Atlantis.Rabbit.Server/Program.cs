@@ -92,4 +92,20 @@ namespace Atlantis.Rabbit.Server
             return Task.CompletedTask;
         }
     }
+
+     public class ConvertVideoHandler
+        : RabbitMQMessagingHandler<AddWaterMarkDto>
+    {
+        public ConvertVideoHandler()
+        {}
+
+        public override string Queue => "fileservice.convertvideo";
+
+        public override string Exchange => "fileservice.convertvideo.exchange";
+
+        protected override async Task Handle(AddWaterMarkDto message)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
