@@ -8,5 +8,6 @@ namespace Atlantis.Rabbit
 {
     public interface IRabbitMessaging
     {
+        
     }
 }
