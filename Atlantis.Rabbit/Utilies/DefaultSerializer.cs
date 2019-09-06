@@ -5,6 +5,11 @@ namespace Atlantis.Rabbit.Utilies
 {
     public class DefaultSerializer: ISerializer
     {
+        public string SerializeStr<T>(T data)
+        {
+            return JsonConvert.SerializeObject(data);
+        }
+
         public T Deserialize<T>(byte[] data)
         {
             var str=Encoding.UTF8.GetString(data);

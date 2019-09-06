@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="$USER_HOME$/.Rider2019.1/system/extResources" t="IncludeRecursive" />
+    <e p="$USER_HOME$/.Rider2019.1/system/resharper-host/local/Transient/ReSharperHost/v191/SolutionCaches/_Atlantis.Rabbit.1048373448.00" t="ExcludeRecursive" />
+    <e p="$PROJECT_DIR$" t="IncludeFlat">
+      <e p="Atlantis.Rabbit" t="IncludeRecursive">
+        <e p="Atlantis.Rabbit.csproj" t="IncludeRecursive" />
+        <e p="IRabbitMessaging.cs" t="Include" />
+        <e p="IRabbitMessagingHandler.cs" t="Include" />
+        <e p="Publishes" t="Include">
+          <e p="IRabbitMessagePublisher.cs" t="Include" />
+          <e p="RabbitMessagePublisher.cs" t="Include" />
+          <e p="RabbitPublishMessageMetadata.cs" t="Include" />
+          <e p="RabbitPublishToAttribute.cs" t="Include" />
+        </e>
+        <e p="RabbitBuilder.cs" t="Include" />
+        <e p="RabbitConfigurationExetension.cs" t="Include" />
+        <e p="RabbitConnection.cs" t="Include" />
+        <e p="RabbitHostService.cs" t="Include" />
+        <e p="RabbitMQMessagingHandler.cs" t="Include" />
+        <e p="RabbitMQSetting.cs" t="Include" />
+        <e p="RabbitMQUtils.cs" t="Include" />
+        <e p="Utilies" t="Include">
+          <e p="DefaultSerializer.cs" t="Include" />
+          <e p="ISerializer.cs" t="Include" />
+          <e p="RefelectionHelper.cs" t="Include" />
+        </e>
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netstandard2.0" t="Include">
+              <e p="Atlantis.Rabbit.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="Atlantis.Rabbit.Server" t="IncludeRecursive">
+        <e p="Atlantis.Rabbit.Server.csproj" t="IncludeRecursive" />
+        <e p="Program.cs" t="Include" />
+        <e p="WaterMarkHandler.cs" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp2.2" t="Include">
+              <e p="Atlantis.Rabbit.Server.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="Atlantis.Rabbit.sln" t="IncludeFlat" />
+      <e p="packages" t="ExcludeRecursive" />
+    </e>
+  </component>
+</project>

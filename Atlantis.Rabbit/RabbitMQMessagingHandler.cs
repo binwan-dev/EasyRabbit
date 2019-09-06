@@ -57,7 +57,7 @@ namespace Atlantis.Rabbit
 
             try
             {
-                _log.LogInformation($"队列：{Queue}，接收到MQ消息：{_builder.JsonSerializer.Serialize(message)}");
+                _log.LogInformation($"队列：{Queue}，接收到MQ消息：{_builder.JsonSerializer.SerializeStr(message)}");
                 await Handle(message);
                 connection.AckMessage(e.DeliveryTag);
             }

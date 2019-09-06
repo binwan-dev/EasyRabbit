@@ -6,6 +6,8 @@ namespace Atlantis.Rabbit.Utilies
     {
         byte[] Serialize<T>(T data);
 
+        string SerializeStr<T>(T data);
+
         T Deserialize<T>(byte[] data);
     }
 }
