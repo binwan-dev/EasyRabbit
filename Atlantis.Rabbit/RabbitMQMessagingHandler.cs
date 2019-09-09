@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,18 +59,35 @@ namespace Atlantis.Rabbit
             try
             {
                 _log.LogInformation($"队列：{Queue}，接收到MQ消息：{_builder.JsonSerializer.SerializeStr(message)}");
-                await Handle(message);
+                await Handle(message,connection);
                 connection.AckMessage(e.DeliveryTag);
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, $"系统在执行{typeof(TMessage)}消息的时候出现异常！原因：{ex.Message}");
                 Thread.Sleep(new Random().Next(1000, 30000));
-                connection.RejectMessage(e.DeliveryTag);
+                Requeue(message, connection, e.DeliveryTag);
             }
         }
 
-        protected abstract Task Handle(TMessage message);
+        protected abstract Task Handle(TMessage message,RabbitConnection connection);
+
+        protected void Requeue(TMessage message,RabbitConnection connection,ulong tag)
+        {
+            var properties=connection.ReceiveChannel.CreateBasicProperties();
+            if(properties.Headers==null)
+            {
+                properties.Headers=new Dictionary<string,object>();
+            }
+            properties.Headers.Add("Type","Failed-Retry");
+            connection.ReceiveChannel.BasicPublish(Exchange, RoutingKey, false,properties, Serialize(message));
+            connection.AckMessage(tag);
+        }
+
+        protected virtual byte[] Serialize(TMessage message)
+        {
+            return _builder.JsonSerializer.Serialize(message);
+        }
 
         protected virtual TMessage Deserialize(byte[] messageBody)
         {
