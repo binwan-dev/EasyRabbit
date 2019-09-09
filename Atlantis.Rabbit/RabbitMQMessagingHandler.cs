@@ -80,7 +80,7 @@ namespace Atlantis.Rabbit
                 properties.Headers=new Dictionary<string,object>();
             }
             properties.Headers.Add("Type","Failed-Retry");
-            connection.ReceiveChannel.BasicPublish(Exchange, RoutingKey, false,properties, Serialize(message));
+            connection.ReceiveChannel.BasicPublish(connection.ReceiveExchange, connection.RoutingKey, false,properties, Serialize(message));
             connection.AckMessage(tag);
         }
 
