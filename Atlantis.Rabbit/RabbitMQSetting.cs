@@ -76,6 +76,13 @@ namespace Atlantis.Rabbit
 
         public ushort RequestedHeartbeat => 60;
 
+        public int ConnectHeartbeat => 1;
+
+        /// <summary>
+        /// Wait rebind queue time (util: ms)
+        /// </summary>
+        public int ReBindTimeMillisecond=6000;
+
         /// <summary>
         /// 等待重连周期（单位：ms）
         /// </summary>

@@ -1,51 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Atlantis.Rabbit;
-using Atlantis.Rabbit.Utilies;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class RabbitConfigurationExetension
     {
-        public static IServiceCollection AddRabbit(
-            this IServiceCollection services,
-            Action<RabbitBuilder> builderAction)
+        public static IServiceCollection AddRabbit(this IServiceCollection services, Action<RabbitBuilder> builderAction)
         {
-            var builder=new RabbitBuilder();
+            var builder=new RabbitBuilder(services);
             builderAction(builder);
             
-            services.AddSingleton<IRabbitMessagePublisher, RabbitMessagePublisher>();
             if(builder.ServerOptions==null||builder.ServerOptions==null)
             {
-                new ArgumentNullException("Please setting rabbit!");
-            }
-
-            var assemblies=new List<Assembly>();
-            foreach(var item in builder.ScanAssemblies)
-            {
-                assemblies.Add(Assembly.Load(item));
+                new ArgumentNullException("Please setting rabbit config!");
             }
             
-            var types = RefelectionHelper.GetImplInterfaceTypes(
-                typeof(IRabbitMessagingHandler), false, assemblies.ToArray());
-            foreach (var type in types)
-            {
-                var hasCount=builder.Metadatas.Count(p=>p.FullName==type.FullName);
-                if (type.IsAbstract||hasCount>0) continue;
-                services.AddScoped(type);
-                builder.Metadatas.Add(type);
-            }
+            services.AddScoped<IPublishUnitOfWork, PublishUnitOfWork>();
+            services.AddSingleton<RabbitConnectionPool>();
             services.AddSingleton(builder);
             services.AddHostedService<RabbitHostService>();
             
             return services;
-
         }
 
-        public static IServiceProvider UseRabbit(
-            this IServiceProvider serviceProvider)
+        public static IServiceProvider UseRabbit(this IServiceProvider serviceProvider)
         {
             RabbitBuilder.ServiceProvider=serviceProvider;
             return serviceProvider;

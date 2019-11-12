@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using Serilog;
 using Serilog.AspNetCore;
+using Atlantis.Rabbit.Models;
 
 namespace Atlantis.Rabbit.Server
 {
@@ -15,97 +16,59 @@ namespace Atlantis.Rabbit.Server
     {
         static async Task Main(string[] args)
         {
-            await new HostBuilder()
-                .ConfigureLogging((hostContext, configLogging) =>
+            var hostBuilder = new HostBuilder().ConfigureLogging((hostContext, configLogging) =>
+            {
+                Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(hostContext.Configuration)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
+                configLogging.AddSerilog();
+            })
+            .ConfigureServices((hostContext, services) =>
+            {
+                services.AddLogging();
+                services.AddSingleton<Microsoft.Extensions.Logging.ILoggerFactory, SerilogLoggerFactory>();
+                services.AddScoped<TestHandler>();
+                services.AddRabbit(builder =>
                 {
-                    Log.Logger = new LoggerConfiguration()
-                    .ReadFrom.Configuration(hostContext.Configuration)
-                    .Enrich.FromLogContext()
-                    .WriteTo.Console()
-                    .CreateLogger();
-                    configLogging.AddSerilog();
-                })
-                .ConfigureServices((hostContext, services) =>
-                {
-                    services.AddLogging();
-                    services.AddSingleton<Microsoft.Extensions.Logging.ILoggerFactory,SerilogLoggerFactory>();
-                    services.AddRabbit(builder=>
+                    builder.ServerOptions = new RabbitServerSetting()
                     {
-                        builder.ServerOptions=new RabbitServerSetting()
-                        {
-                            Host="120.77.144.4",
-                            UserName="admin",
-                            Password="1qa@WS3ed",
-                            Port=-1,
-                            VirtualHost="dev"
-                        };
-                        builder.ScanAssemblies=new string[]{typeof(Program).Assembly.FullName,typeof(Program).Assembly.FullName};
-                    });
-                    var message=new AddWaterMarkDto(){FileToken="11",WaterMarkText="22"};
-                    var headers=new Dictionary<string,object>();
-                    headers.Add("TTL",864000000);
-                    var serviceProvider=services.BuildServiceProvider().UseRabbit();
+                        Host = "127.0.0.1",
+                        UserName = "guest",
+                        Password = "guest",
+                        Port = 5672,
+                        VirtualHost = "/"
+                    };
+                    builder.CreateConsumer<Test>().SetName("test").ConfigHandler<TestHandler>().AddBinding("test").Build();
+                    builder.CreateProducer<Test>().SetName("test").SetType(ExchangeType.Fanout).Build();
+                });
+            });
+            var host = hostBuilder.Build();
+            host.Services.UseRabbit();
 
-                    var publisher=serviceProvider.GetService<IRabbitMessagePublisher>();
-                    publisher.Publish(message,headers);
-                })
-                .RunConsoleAsync();
-            
+            var producer = host.Services.GetService<Producer<Test>>();
+            var nowait = Task.Run(() =>
+            {
+                Task.Delay(1000);
+                producer.Publish(new Test() { Name = "Hello rabbit" });
+            });
+
+            await host.RunAsync();
         }
     }
 
-
-    [RabbitPublishTo(Exchange="cap.default.router",RoutingKey="image.water.mark")]
-    public class AddWaterMarkDto
+    public class Test
     {
-        /// <summary>
-        /// 文件token
-        /// </summary>
-        public string FileToken { get; set; }
-
-        /// <summary>
-        /// 水印文字
-        /// </summary>
-        public string WaterMarkText { get; set; }
-
+        public string Name { get; set; }
     }
 
-    public class WaterMarkHandler : RabbitMQMessagingHandler<AddWaterMarkDto>
+    public class TestHandler : Atlantis.Rabbit.MessagingHandler<Test>
     {
-        public WaterMarkHandler()
+        protected override Task Process(Test message, ConsumerMessagingContext<Test> context)
         {
-        }
-
-        public override string Queue => "fileservice.v1";
-
-        public override string Exchange => "cap.default.router";
-
-        public override string VirtualHost=>"dev";
-
-        public override string RoutingKey=>"image.water.mark";
-
-        public override long TTL=>864000000;
-
-        protected override Task Handle(AddWaterMarkDto message)
-        {
-            Console.WriteLine(JsonConvert.SerializeObject(message));
+            Console.WriteLine(message.Name);
             return Task.CompletedTask;
-        }
-    }
-
-     public class ConvertVideoHandler
-        : RabbitMQMessagingHandler<AddWaterMarkDto>
-    {
-        public ConvertVideoHandler()
-        {}
-
-        public override string Queue => "fileservice.convertvideo";
-
-        public override string Exchange => "fileservice.convertvideo.exchange";
-
-        protected override async Task Handle(AddWaterMarkDto message)
-        {
-            throw new NotImplementedException();
         }
     }
 }
