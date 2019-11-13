@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EasyRabbit
 {
@@ -10,14 +11,16 @@ namespace EasyRabbit
     {
         private readonly ILogger<RabbitHostService> _log;
         private readonly RabbitBuilder _builder;
+        private readonly IServiceProvider _serviceProvider;
         private static bool _isStarted = false;
-        private static RabbitConnectionPool _connectionPool;
+        private RabbitConnectionPool _connectionPool;
 
-        public RabbitHostService(ILogger<RabbitHostService> log, RabbitBuilder builder)
+        public RabbitHostService(ILogger<RabbitHostService> log, RabbitBuilder builder, IServiceProvider serviceProvider)
         {
             _log = log;
             _builder = builder;
-            _connectionPool = new RabbitConnectionPool();
+            _connectionPool = serviceProvider.GetService<RabbitConnectionPool>();
+            RabbitBuilder.ServiceProvider=serviceProvider;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

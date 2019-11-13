@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Atlantis.Rabbit.Utilies;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -8,9 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using Serilog;
 using Serilog.AspNetCore;
-using Atlantis.Rabbit.Models;
+using EasyRabbit;
+using EasyRabbit.Models;
 
-namespace Atlantis.Rabbit.Server
+namespace EasyRabbit.Server
 {
     class Program
     {
@@ -45,7 +45,7 @@ namespace Atlantis.Rabbit.Server
                 });
             });
             var host = hostBuilder.Build();
-            host.Services.UseRabbit();
+            //host.Services.UseRabbit();
 
             var producer = host.Services.GetService<Producer<Test>>();
             var nowait = Task.Run(() =>
@@ -63,7 +63,7 @@ namespace Atlantis.Rabbit.Server
         public string Name { get; set; }
     }
 
-    public class TestHandler : Atlantis.Rabbit.MessagingHandler<Test>
+    public class TestHandler : MessagingHandler<Test>
     {
         protected override Task Process(Test message, ConsumerMessagingContext<Test> context)
         {
