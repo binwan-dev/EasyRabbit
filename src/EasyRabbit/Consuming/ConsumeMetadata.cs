@@ -15,7 +15,12 @@ namespace EasyRabbit.Consuming
 
     public class ConsumeMetadataFactory
     {
-        private static readonly IDictionary<string, ConsumeMetadata> _metadataDic;
+        private static readonly IDictionary<string, ConsumeMetadata> _metadataDic = new Dictionary<string, ConsumeMetadata>();
+
+        public static void Set(ConsumeMetadata metadata)
+        {
+            _metadataDic.Add(metadata.HandlerType.FullName, metadata);
+        }
 
         public static ConsumeMetadata Get(string handlerName)
         {

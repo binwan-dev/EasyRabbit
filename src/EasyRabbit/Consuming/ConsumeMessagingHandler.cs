@@ -8,13 +8,13 @@ namespace EasyRabbit.Consuming
     public abstract class ConsumeMessagingHandler<TMessage> : IConsumeMessagingHandler<TMessage> where TMessage : class
     {
         private readonly ILogger _logger;
-        private readonly IJsonSerializer _jsonSerialzer;
+        private readonly ISerializer _jsonSerialzer;
         private readonly ConsumeMetadata _metadata;
 
         public ConsumeMessagingHandler()
         {
             _logger = ObjectContainerFactory.ObjectContainer.Resolve<ILoggerFactory>().CreateLogger(this.GetType());
-            _jsonSerialzer = ObjectContainerFactory.ObjectContainer.Resolve<IJsonSerializer>();
+            _jsonSerialzer = SerializeFactory.Serializer;
             _metadata = ConsumeMetadataFactory.Get(this.GetType().FullName);
         }
 

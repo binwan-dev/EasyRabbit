@@ -13,9 +13,9 @@ namespace EasyRabbit
         private readonly Action<RabbitMQConnection> _connected;
         private readonly ILogger _logger;
         private IConnection _connection;
-        private int _reconnectMilliSeconds;
-        private int _reconnectTimes;
-        private static int _connecting;
+        private int _reconnectMilliSeconds = 600;
+        private int _reconnectTimes = 1;
+        private static int _connecting = 0;
 
         public RabbitMQConnection(ServerOptions options, string virtualHost, Action<RabbitMQConnection> connected)
         {
@@ -42,6 +42,10 @@ namespace EasyRabbit
                 {
                     _logger.Info($"Auto connect is enable, the service will reconnect to the rabbit mq server after {_reconnectMilliSeconds} ms!");
                     tryReConnect();
+                }
+                else
+                {
+                    throw ex;
                 }
             }
         }

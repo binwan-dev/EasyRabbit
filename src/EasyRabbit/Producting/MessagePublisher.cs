@@ -1,67 +1,58 @@
-﻿using Followme.AspNet.Core.FastCommon.Components;
-using Followme.AspNet.Core.FastCommon.Configurations;
-using Followme.AspNet.Core.FastCommon.ThirdParty.RabbitMQ.Publishes.Wrappers;
-using Followme.AspNet.Core.FastCommon.ThirdParty.RibbitMQ;
-using Followme.AspNet.Core.FastCommon.Utilities;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
+using EasyRabbit.Options;
+using EasyRabbit.Producting;
+using EasyRabbit.Utils;
+using RabbitMQ.Client;
 
 namespace EasyRabbit.Publishes
 {
     public class MessagePublisher : IMessagePublisher
     {
-        private readonly IDictionary<string, RabbitPublishMessageMetadata> _publishDic;
-        private readonly RabbitMQSetting _rabbitMQSetting;
+        private readonly ILogger _logger;
+        private readonly ISerializer _jsonSerializer;
 
-        public RabbitMessagePublisher()
+        public MessagePublisher()
         {
-            _publishDic = new Dictionary<string, RabbitPublishMessageMetadata>();
-            _rabbitMQSetting = ObjectContainer.Resolve<Configuration>().Setting.GetRabbitMQSetting();
+            _logger = ObjectContainerFactory.ObjectContainer.Resolve<ILoggerFactory>().CreateLogger<MessagePublisher>();
+            _jsonSerializer = SerializeFactory.Serializer;
         }
 
-        public void Publish<T>(T message)
+        public void Publish<T>(T message, IDictionary<string, object> headers = null, PublishOptions publishOptions = null, ServerOptions serverOptions = null, Func<T, ReadOnlyMemory<byte>> serialize = null)
         {
-            Ensure.NotNull(message, "The message cannot be null, send to rabbitmq failed!");
-            var metadata = GetOrCreateNewPublishInfo(message);
-            Ensure.NotNull(metadata, "The message found metadata error!");
-            var wrapperMessage = WrappingMessage(message, metadata);
-            Ensure.NotNull(wrapperMessage, "Wrapper message failed!");
-            SendMessage(wrapperMessage);
-        }
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
 
-        public void SendMessage<T>(IRabbitPublishMessageWrapper<T> message)
-        {
-            using (var connection = RabbitMQUtils.CreateNewConnection(message.Metadata.ConnectSetting))
-            using (var channel = connection.CreateModel())
+            var metadata = PublishMessagingMetadataFactory.GetMetadata(typeof(T));
+            if (metadata == null && publishOptions == null)
+                throw new InvalidOperationException($"The message({typeof(T).FullName}) cannot publish! Please register this message!");
+            if (_jsonSerializer == null && serialize == null)
+                throw new InvalidOperationException($"The message({typeof(T).FullName}) has not default serialize, Please set or register default!");
+
+            if (publishOptions == null)
+                publishOptions = metadata.PublishOptions;
+            if (serverOptions == null)
+                serverOptions = metadata.ServerOptions;
+            if (serialize == null)
+                serialize = _jsonSerializer.Serialize;
+            if (string.IsNullOrWhiteSpace(publishOptions.VirtualHost) && string.IsNullOrWhiteSpace(serverOptions.VirtualHost))
+                throw new InvalidOperationException($"The message({typeof(T).FullName}) has not virtualhost!");
+            if (string.IsNullOrWhiteSpace(publishOptions.VirtualHost))
+                publishOptions.VirtualHost = serverOptions.VirtualHost;
+
+            var connection = RabbitMQConnectionFactory.Instance.GetOrCreateConnection(serverOptions, publishOptions.VirtualHost, null);
+            if (!connection.Connection.IsOpen)
+                throw new InvalidOperationException($"The connection is not opened! publish failed!");
+
+            using (var channel = connection.Connection.CreateModel())
             {
-                var properties = channel.CreateBasicProperties();
-                channel.BasicPublish(message.Metadata.Exchange, message.Metadata.RoutingKey, false, properties, message.Serialize());
+                var basicProperties = channel.CreateBasicProperties();
+                basicProperties.Headers = headers;
+                channel.BasicPublish(publishOptions.Exchange, publishOptions.RoutingKey, true, basicProperties, serialize(message));
             }
-        }
-
-        private IRabbitPublishMessageWrapper<T> WrappingMessage<T>(T message, RabbitPublishMessageMetadata metadata)
-        {
-            switch (metadata.SerializeType)
-            {
-                case PublishMessageSerialzeType.Proto: return new RabbitPublishMessageProtoWrapper<T>(message, metadata);
-                case PublishMessageSerialzeType.Json: return new RabbitPublishMessageJsonWrapper<T>(message, metadata);
-            }
-            return new RabbitPublishMessageProtoWrapper<T>(message, metadata);
-        }
-
-        private RabbitPublishMessageMetadata GetOrCreateNewPublishInfo<T>(T message)
-        {
-            if (_publishDic.TryGetValue(message.GetType().FullName.ToLower(), out var metadata) && metadata != null) return metadata;
-
-            var attribute = message.GetType().GetCustomAttribute<RabbitPublishToAttribute>();
-            Ensure.NotNull(attribute, "The message cannot be found metadata info, please set RabbitPublishToAttribute to it!");
-
-            var hostSetting = _rabbitMQSetting.GetServer(attribute.GroupName);
-            Ensure.NotNull(hostSetting, "The message cannot be found host setting, please set it at the RabbitPublishToAttribute!");
-
-            metadata = new RabbitPublishMessageMetadata(attribute, hostSetting);
-            _publishDic.Add(message.GetType().FullName.ToLower(), metadata);
-            return metadata;
         }
     }
 }

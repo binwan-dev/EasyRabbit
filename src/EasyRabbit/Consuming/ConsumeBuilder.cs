@@ -5,17 +5,16 @@ namespace EasyRabbit.Consuming
 {
     public class ConsumeBuilder
     {
+        public ConsumeBuilder()
+        {
+            ServerOptions = ServerOptions.Default;
+        }
+
         public ServerOptions ServerOptions { get; private set; }
 
         public ConsumeOptions ConsumeOptions { get; private set; }
 
         public Type HandlerType { get; private set; }
-
-        public ConsumeBuilder UseSysServerOptions()
-        {
-            ServerOptions = ServerOptions.Default;
-            return this;
-        }
 
         public ConsumeBuilder UseServerOptions(ServerOptions serverOptions)
         {

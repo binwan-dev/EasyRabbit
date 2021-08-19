@@ -12,10 +12,6 @@ namespace EasyRabbit.Consuming
         private readonly ILogger _logger;
         private IModel _receiveChannel;
 
-        private int _connecting = 0;
-        private int _reconnectTimes = 1;
-        private int _reconnectMilliSeconds = 600;
-
         public ConsumeChannel(ConsumeMetadata metadata)
         {
             if (metadata.ConsumeOptions == null)
@@ -33,10 +29,9 @@ namespace EasyRabbit.Consuming
             if (metadata.ServerOptions.Port == 0)
                 throw new ArgumentNullException(nameof(metadata.ServerOptions.Port));
 
+            _metadata = metadata;
             _logger = ObjectContainerFactory.ObjectContainer.Resolve<ILoggerFactory>().CreateLogger<ConsumeChannel>();
             _connection = RabbitMQConnectionFactory.Instance.GetOrCreateConnection(_metadata.ServerOptions, _metadata.ConsumeOptions.VirtualHost, Binding);
-            if (!_connection.Connection.IsOpen)
-                _connection.Connect();
         }
 
         public RabbitMQConnection Connection => _connection;

@@ -18,6 +18,8 @@ namespace EasyRabbit.Options
 
         public ushort RequestedHeartbeat { get; set; }
 
+        public string VirtualHost { get; set; }
+
         public static ServerOptions Default { get; set; }
     }
 }

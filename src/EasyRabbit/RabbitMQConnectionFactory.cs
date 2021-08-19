@@ -22,7 +22,9 @@ namespace EasyRabbit
                 return connection;
 
             connection = new RabbitMQConnection(options, virtualHost, connected);
+            connection.Connect();
             _connectionDic.Add(key, connection);
+
             return connection;
         }
     }
