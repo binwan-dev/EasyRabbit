@@ -37,7 +37,7 @@ namespace EasyRabbit
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"The rabbit mq service cannot connect! ");
+                _logger.Error(ex, "The rabbit mq service cannot connect! ServerOptions: {0}", _serverOptions.ToString());
                 if (isAutoConnect)
                 {
                     _logger.Info($"Auto connect is enable, the service will reconnect to the rabbit mq server after {_reconnectMilliSeconds} ms!");
@@ -57,12 +57,12 @@ namespace EasyRabbit
             Thread.Sleep(_reconnectMilliSeconds);
             try
             {
-                _logger.Info($"Try reconnect to server! server info: ip={0}, port={1}, virtual host={2}, username={3}", _serverOptions.Host, _serverOptions.Port, _virtualHost, _serverOptions.UserName);
+                _logger.Info("Try reconnect to server! server info: ip={0}, port={1}, virtual host={2}, username={3}", _serverOptions.Host, _serverOptions.Port, _virtualHost, _serverOptions.UserName);
                 reConnect();
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"The connection connect failed!");
+                _logger.Error(ex, "The connection connect failed! ServerOptions: {0}", _serverOptions.ToString());
                 exitReConnect();
                 var sleepingTime = _reconnectMilliSeconds * _reconnectTimes * _reconnectTimes;
                 _logger.Wran($"The connection reconnect to server after {sleepingTime / 1000} s!");

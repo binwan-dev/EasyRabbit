@@ -28,6 +28,10 @@ namespace EasyRabbit.Consuming
                 throw new ArgumentNullException(nameof(metadata.ServerOptions.Host));
             if (metadata.ServerOptions.Port == 0)
                 throw new ArgumentNullException(nameof(metadata.ServerOptions.Port));
+            if (string.IsNullOrWhiteSpace(metadata.ServerOptions.VirtualHost) && string.IsNullOrWhiteSpace(metadata.ConsumeOptions.VirtualHost))
+                throw new ArgumentNullException("VirtualHost is null!");
+            if (string.IsNullOrWhiteSpace(metadata.ConsumeOptions.VirtualHost))
+                metadata.ConsumeOptions.VirtualHost = metadata.ServerOptions.VirtualHost;
 
             _metadata = metadata;
             _logger = ObjectContainerFactory.ObjectContainer.Resolve<ILoggerFactory>().CreateLogger<ConsumeChannel>();

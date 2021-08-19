@@ -21,5 +21,10 @@ namespace EasyRabbit.Options
         public string VirtualHost { get; set; }
 
         public static ServerOptions Default { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Host}:{Port}/{VirtualHost}?{UserName}";
+        }
     }
 }

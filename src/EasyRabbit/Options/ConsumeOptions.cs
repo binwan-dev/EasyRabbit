@@ -4,6 +4,10 @@ namespace EasyRabbit.Options
     {
         public ConsumeOptions()
         {
+            VirtualHost = string.Empty;
+            RoutingKey = string.Empty;
+            Queue = string.Empty;
+            Exchange = string.Empty;
             IsAutoAck = true;
             IsAutoAckWhenDeserializeFailed = true;
         }

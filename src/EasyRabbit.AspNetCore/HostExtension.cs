@@ -1,8 +1,10 @@
 using EasyRabbit.Utils;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using EasyRabbit.AspNetCore;
+using EasyRabbit;
 
-namespace EasyRabbit.AspNetCore
+namespace Microsoft.Extensions.Hosting
 {
     public static class HostExtension
     {
