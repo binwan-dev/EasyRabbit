@@ -43,7 +43,7 @@ namespace EasyRabbit.Publishes
             if (string.IsNullOrWhiteSpace(publishOptions.VirtualHost))
                 publishOptions.VirtualHost = serverOptions.VirtualHost;
 
-            var connection = RabbitMQConnectionFactory.Instance.GetOrCreateConnection(serverOptions, publishOptions.VirtualHost, null);
+            var connection = RabbitMQConnectionFactory.Instance.GetOrCreateConnection(serverOptions, publishOptions.VirtualHost);
             if (!connection.Connection.IsOpen)
                 throw new InvalidOperationException($"The connection is not opened! publish failed!");
 

@@ -10,18 +10,17 @@ namespace EasyRabbit
     {
         private readonly ServerOptions _serverOptions;
         private readonly string _virtualHost;
-        private readonly Action<RabbitMQConnection> _connected;
+        public event Action<RabbitMQConnection> Connected;
         private readonly ILogger _logger;
         private IConnection _connection;
         private int _reconnectMilliSeconds = 600;
         private int _reconnectTimes = 1;
         private static int _connecting = 0;
 
-        public RabbitMQConnection(ServerOptions options, string virtualHost, Action<RabbitMQConnection> connected)
+        public RabbitMQConnection(ServerOptions options, string virtualHost)
         {
             _serverOptions = options;
             _virtualHost = virtualHost;
-            _connected = connected;
             _logger = ObjectContainerFactory.ObjectContainer.Resolve<ILoggerFactory>().CreateLogger<RabbitMQConnection>();
         }
 
@@ -32,8 +31,8 @@ namespace EasyRabbit
             try
             {
                 _connection = RabbitMQUtils.CreateNewConnection(_serverOptions, _virtualHost);
-                if (_connected != null)
-                    _connected.Invoke(this);
+                if (Connected != null)
+                    Connected.Invoke(this);
             }
             catch (Exception ex)
             {
@@ -77,8 +76,8 @@ namespace EasyRabbit
         private void reConnect()
         {
             _connection = RabbitMQUtils.CreateNewConnection(_serverOptions, _virtualHost);
-            if (_connected != null)
-                _connected(this);
+            if (Connected != null)
+                Connected(this);
             _reconnectTimes = 1;
         }
 

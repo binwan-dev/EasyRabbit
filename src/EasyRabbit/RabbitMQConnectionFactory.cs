@@ -15,13 +15,13 @@ namespace EasyRabbit
             _connectionDic = new Dictionary<string, RabbitMQConnection>();
         }
 
-        public RabbitMQConnection GetOrCreateConnection(ServerOptions options, string virtualHost, Action<RabbitMQConnection> connected)
+        public RabbitMQConnection GetOrCreateConnection(ServerOptions options, string virtualHost)
         {
             var key = $"{options.Host}:{options.Port}/{virtualHost}";
             if (_connectionDic.TryGetValue(key, out RabbitMQConnection connection))
                 return connection;
 
-            connection = new RabbitMQConnection(options, virtualHost, connected);
+            connection = new RabbitMQConnection(options, virtualHost);
             connection.Connect();
             _connectionDic.Add(key, connection);
 

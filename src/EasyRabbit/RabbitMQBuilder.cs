@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using EasyRabbit.Consuming;
 using EasyRabbit.Options;
