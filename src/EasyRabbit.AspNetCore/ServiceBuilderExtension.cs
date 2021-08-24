@@ -2,6 +2,8 @@ using System;
 using EasyRabbit;
 using EasyRabbit.AspNetCore;
 using EasyRabbit.Extensions.Newtonsoft.Json;
+using EasyRabbit.Producting;
+using EasyRabbit.Publishes;
 using EasyRabbit.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var builder = new RabbitMQBuilder();
             builderAction(builder);
             services.AddLogging();
+            services.AddSingleton<IMessagePublisher, MessagePublisher>();
             services.AddSingleton<RabbitMQBuilder>(builder);
             services.AddSingleton<ILoggerFactory, MicrosoftLoggerFactory>();
             services.AddSingleton<IObjectContainer, ServiceProviderObjectContainer>();
