@@ -15,6 +15,12 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var builder = new RabbitMQBuilder();
             builderAction(builder);
+            services.RegisterRabbit(builder);
+            return services;
+        }
+
+        internal static IServiceCollection RegisterRabbit(this IServiceCollection services, RabbitMQBuilder builder)
+        {
             services.AddLogging();
             services.AddSingleton<IMessagePublisher, MessagePublisher>();
             services.AddSingleton<RabbitMQBuilder>(builder);

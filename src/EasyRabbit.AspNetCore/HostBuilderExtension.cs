@@ -15,7 +15,7 @@ namespace Microsoft.Extensions.Hosting
             {
                 var rabbitMQBuilder = new RabbitMQBuilder();
                 builderAction(rabbitMQBuilder, context, services);
-                services.AddEasyRabbit((b) => b = rabbitMQBuilder);
+                services.RegisterRabbit(rabbitMQBuilder);
             });
             return builder;
         }
