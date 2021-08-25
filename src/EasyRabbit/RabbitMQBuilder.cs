@@ -10,6 +10,7 @@ namespace EasyRabbit
     public class RabbitMQBuilder
     {
         private readonly List<ConsumeBuilder> _consumeBuilders;
+
         private readonly List<PublishBuilder> _publishBuilders;
 
         public RabbitMQBuilder()
