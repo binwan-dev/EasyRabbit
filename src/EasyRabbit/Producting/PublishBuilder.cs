@@ -5,6 +5,11 @@ namespace EasyRabbit.Producting
 {
     public class PublishBuilder
     {
+        public PublishBuilder()
+        {
+            ServerOptions = ServerOptions.Default;
+        }
+
         public PublishOptions PublishOptions { get; private set; }
 
         public ServerOptions ServerOptions { get; private set; }
