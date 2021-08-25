@@ -5,13 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": "EasyRabbit.AspNetCore.Simple",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/Atlantis.Rabbit.Server/bin/Debug/netcoreapp2.2/Atlantis.Rabbit.Server.dll",
+            "program": "${workspaceFolder}/src/EasyRabbit.AspNetCore.Simple/bin/Debug/netcoreapp3.1/EasyRabbit.AspNetCore.Simple.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/Atlantis.Rabbit.Server",
+            "cwd": "${workspaceFolder}/src/EasyRabbit.AspNetCore.Simple",
             "console": "internalConsole",
             "stopAtEntry": false
         },

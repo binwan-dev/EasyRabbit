@@ -11,7 +11,6 @@ namespace EasyRabbit
     {
         private readonly List<ConsumeBuilder> _consumeBuilders;
         private readonly List<PublishBuilder> _publishBuilders;
-        private Action<Type> _registerConsumeHandlerAction;
 
         public RabbitMQBuilder()
         {
@@ -59,8 +58,8 @@ namespace EasyRabbit
                     ConsumeOptions = builder.ConsumeOptions,
                     HandlerType = builder.HandlerType
                 };
-                new ConsumeChannel(metadata);
                 ConsumeMetadataFactory.Set(metadata);
+                new ConsumeChannel(metadata);
             }
 
             foreach (var builder in _publishBuilders)
