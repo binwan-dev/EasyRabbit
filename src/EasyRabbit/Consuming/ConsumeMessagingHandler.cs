@@ -56,10 +56,6 @@ namespace EasyRabbit.Consuming
 
         protected abstract Task HandleAsync(IConsumeMessagingContext<TMessage> message);
 
-        protected virtual (bool IsContinue, IConsumeMessagingContext<TMessage> MessageContext) BeforeHandle(IConsumeMessagingContext<TMessage> messageContext) => (true, messageContext);
-
-        protected virtual (bool IsContinue, IConsumeMessagingContext<TMessage> MessageContext) AfterHandle(IConsumeMessagingContext<TMessage> messageContext) => (true, messageContext);
-
         protected virtual TMessage Deserialize(ReadOnlyMemory<byte> messageBody)
         {
             return _jsonSerialzer.Deserialize<TMessage>(messageBody);

@@ -4,6 +4,7 @@ using EasyRabbit.Options;
 using EasyRabbit.Producting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading;
 
 namespace EasyRabbit.AspNetCore.Test
 {
@@ -22,6 +23,12 @@ namespace EasyRabbit.AspNetCore.Test
                         Password = "123456",
                         VirtualHost = "dev"
                     });
+                    context.AddConsumer().AddHandler<HelloHandler>().UseConsumeOptions(new ConsumeOptions()
+                    {
+                        Queue = "hello",
+                        Exchange = "hello",
+                        RoutingKey = "hello"
+                    });
                     context.AddProducer().AddMessage<HelloMessage>().UsePublishOptions(new PublishOptions()
                     {
                         Exchange = "hello",
@@ -33,7 +40,7 @@ namespace EasyRabbit.AspNetCore.Test
 
             var publisher = host.Services.GetService<IMessagePublisher>();
             publisher.Publish(new HelloMessage() { Name = "test" });
-
+            Thread.Sleep(5000);
             Console.WriteLine("Hello World!");
         }
     }

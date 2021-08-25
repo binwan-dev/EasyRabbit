@@ -27,7 +27,10 @@ namespace EasyRabbit.Publishes
                 throw new ArgumentNullException(nameof(message));
 
             var metadata = PublishMessagingMetadataFactory.GetMetadata(typeof(T));
-            if (metadata == null && publishOptions == null)
+            if ((metadata == null && publishOptions == null) ||
+                (metadata == null && serverOptions == null) ||
+                (metadata.PublishOptions == null && publishOptions == null) ||
+                (metadata.ServerOptions == null && serverOptions == null))
                 throw new InvalidOperationException($"The message({typeof(T).FullName}) cannot publish! Please register this message!");
             if (_jsonSerializer == null && serialize == null)
                 throw new InvalidOperationException($"The message({typeof(T).FullName}) has not default serialize, Please set or register default!");

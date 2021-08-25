@@ -1,5 +1,6 @@
 using System;
 using EasyRabbit.Options;
+using EasyRabbit.Utils;
 
 namespace EasyRabbit.Consuming
 {

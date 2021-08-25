@@ -15,18 +15,17 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var builder = new RabbitMQBuilder();
             builderAction(builder);
-            services.RegisterRabbit(builder);
-            return services;
-        }
 
-        internal static IServiceCollection RegisterRabbit(this IServiceCollection services, RabbitMQBuilder builder)
-        {
             services.AddLogging();
             services.AddSingleton<IMessagePublisher, MessagePublisher>();
             services.AddSingleton<RabbitMQBuilder>(builder);
             services.AddSingleton<ILoggerFactory, MicrosoftLoggerFactory>();
             services.AddSingleton<IObjectContainer, ServiceProviderObjectContainer>();
             builder.UseNewtonSoftJson();
+
+            foreach (var consumeHandler in builder.ConsumeBuilders)
+                services.AddScoped(consumeHandler.HandlerType);
+
             return services;
         }
     }

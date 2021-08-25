@@ -9,14 +9,19 @@ namespace EasyRabbit
 {
     public class RabbitMQBuilder
     {
-        private readonly IList<ConsumeBuilder> _consumeBuilders;
-        private readonly IList<PublishBuilder> _publishBuilders;
+        private readonly List<ConsumeBuilder> _consumeBuilders;
+        private readonly List<PublishBuilder> _publishBuilders;
+        private Action<Type> _registerConsumeHandlerAction;
 
         public RabbitMQBuilder()
         {
             _consumeBuilders = new List<ConsumeBuilder>();
             _publishBuilders = new List<PublishBuilder>();
         }
+
+        public IReadOnlyList<ConsumeBuilder> ConsumeBuilders => _consumeBuilders;
+
+        public IReadOnlyList<PublishBuilder> PublishBuilders => _publishBuilders;
 
         public RabbitMQBuilder RegisterObjectContainer(IObjectContainer objectContainer)
         {
