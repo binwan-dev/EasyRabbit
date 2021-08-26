@@ -25,9 +25,9 @@ namespace EasyRabbit.Consuming
             {
                 messagingContext = new ConsumeMessagingContext<TMessage>(channel, model, e, decodeMessage, _metadata);
 
-                _logger.Debug("The Queue({0}) receive message! Message Data: {1}", _metadata.ConsumeOptions.Queue, messagingContext.Data);
+                _logger.Debug("The Queue({0}) receive message! Message Data: {1}", _metadata.ConsumeOptions.Queue, _jsonSerialzer.Serialize(messagingContext.Data));
                 await HandleAsync(messagingContext);
-                _logger.Debug("The Queue({0}) handle complete! Message Data: {1}", _metadata.ConsumeOptions.Queue, messagingContext.Data);
+                _logger.Debug("The Queue({0}) handle complete! Message Data: {1}", _metadata.ConsumeOptions.Queue, _jsonSerialzer.Serialize(messagingContext.Data));
 
                 if (_metadata.ConsumeOptions.IsAutoAck)
                     messagingContext.Ack();
@@ -71,13 +71,15 @@ namespace EasyRabbit.Consuming
             else
             {
                 _logger.Error(ex.InnerException, "The Queue({0}) deserialize message failed! Will reject message!", _metadata.ConsumeOptions.Queue);
+                System.Threading.Thread.Sleep(2000);
                 messagingContext.Reject();
             }
         }
 
         protected virtual void HandleUnknowException(Exception ex, IConsumeMessagingContext<TMessage> messagingContext)
         {
-            _logger.Error(ex, "The Queue({0}) deserialize message failed! Will reject message!", _metadata.ConsumeOptions.Queue);
+            _logger.Error(ex, "The Queue({0}) deserialize message failed! Will reject message! Message Data: {1}", _metadata.ConsumeOptions.Queue, _jsonSerialzer.Serialize(messagingContext.Data));
+            System.Threading.Thread.Sleep(2000);
             messagingContext.Reject();
         }
     }
