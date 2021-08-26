@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\EasyRabbit\EasyRabbit.csproj" />
     <ProjectReference Include="..\EasyRabbit.AspNetCore\EasyRabbit.AspNetCore.csproj" />
   </ItemGroup>
 

@@ -53,8 +53,11 @@ namespace EasyRabbit.Consuming
                 var consume = new EventingBasicConsumer(_receiveChannel);
                 consume.Received += async (model, e) =>
                 {
-                    var handler = ObjectContainerFactory.ObjectContainer.Resolve<IConsumeMessagingHandler>(_metadata.HandlerType);
-                    await handler.HandleAsync(this, model, e);
+                    using (var scope = ObjectContainerFactory.ObjectContainer.CreateScope())
+                    {
+                        var handler = scope.Resolve<IConsumeMessagingHandler>(_metadata.HandlerType);
+                        await handler.HandleAsync(this, model, e);
+                    }
                 };
                 _receiveChannel.BasicConsume(_metadata.ConsumeOptions.Queue, false, consume);
                 _logger.Info("The channel binding success! queue(name: {0}, exchange: {1}), routingkey: {2} at rabbit mq! ", _metadata.ConsumeOptions.Queue, _metadata.ConsumeOptions.Exchange, _metadata.ConsumeOptions.RoutingKey);
