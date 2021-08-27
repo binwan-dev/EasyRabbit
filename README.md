@@ -1,6 +1,6 @@
 EasyRabbit
 ======================  
-该项目是用来简化RabbitMQ访问  
+该项目是用来简化RabbitMQ访问，提供一种Publish/Consume 方式访问
 使用  
 ``` csharp
 dotnet add package EasyRabbit.AspNetCore
