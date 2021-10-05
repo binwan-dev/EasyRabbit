@@ -10,6 +10,7 @@ namespace EasyRabbit.Options
             Exchange = string.Empty;
             IsAutoAck = true;
             IsAutoAckWhenDeserializeFailed = true;
+            PrefetchCount = 1;
         }
 
         public string VirtualHost { get; set; }
@@ -31,5 +32,7 @@ namespace EasyRabbit.Options
         public bool IsAutoAck { get; set; }
 
         public ushort PrefetchCount { get; set; }
+
+        public ushort PrefetchSize { get; set; }
     }
 }

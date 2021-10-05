@@ -49,7 +49,7 @@ namespace EasyRabbit.Consuming
                 _receiveChannel = connection.Connection.CreateModel();
                 _receiveChannel.QueueDeclare(_metadata.ConsumeOptions.Queue, true, false, false, null);
                 _receiveChannel.QueueBind(_metadata.ConsumeOptions.Queue, _metadata.ConsumeOptions.Exchange, _metadata.ConsumeOptions.RoutingKey, null);
-                _receiveChannel.BasicQos(0, _metadata.ConsumeOptions.PrefetchCount, false);
+                _receiveChannel.BasicQos(_metadata.ConsumeOptions.PrefetchSize, _metadata.ConsumeOptions.PrefetchCount, false);
                 var consume = new EventingBasicConsumer(_receiveChannel);
                 consume.Received += async (model, e) =>
                 {
