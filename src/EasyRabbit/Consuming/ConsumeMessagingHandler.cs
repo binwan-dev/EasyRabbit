@@ -73,15 +73,15 @@ namespace EasyRabbit.Consuming
             {
                 _logger.Error(ex.InnerException, "The Queue({0}) deserialize message failed! Will reject message!", _metadata.ConsumeOptions.Queue);
                 System.Threading.Thread.Sleep(2000);
-                messagingContext.Reject();
+                messagingContext.Nack();
             }
         }
 
         protected virtual void HandleUnknowException(Exception ex, IConsumeMessagingContext<TMessage> messagingContext)
         {
-            _logger.Error(ex, "The Queue({0}) deserialize message failed! Will reject message! Message Data: {1}", _metadata.ConsumeOptions.Queue, ToStringMessageData(messagingContext.Data));
+            _logger.Error(ex, "The Queue({0}) handle failed! Will reject message! Message Data: {1}", _metadata.ConsumeOptions.Queue, ToStringMessageData(messagingContext.Data));
             System.Threading.Thread.Sleep(2000);
-            messagingContext.Reject();
+            messagingContext.Nack();
         }
 
         private string ToStringMessageData(TMessage Data)
