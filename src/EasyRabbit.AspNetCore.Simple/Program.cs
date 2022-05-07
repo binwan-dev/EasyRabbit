@@ -13,9 +13,9 @@ namespace EasyRabbit.AspNetCore.Test
         static void Main(string[] args)
         {
             var host = Host.CreateDefaultBuilder()
-                .AddEasyRabbit((context, services, builder) =>
+                .AddEasyRabbit((builder, context, services) =>
                 {
-                    context.AddGlobalServerOptions(new ServerOptions()
+                    builder.AddGlobalServerOptions(new ServerOptions()
                     {
                         Host = "192.168.3.253",
                         Port = 6672,
@@ -23,13 +23,13 @@ namespace EasyRabbit.AspNetCore.Test
                         Password = "123456",
                         VirtualHost = "dev"
                     });
-                    context.AddConsumer().AddHandler<HelloHandler>().UseConsumeOptions(new ConsumeOptions()
+                    builder.AddConsumer().AddHandler<HelloHandler>().UseConsumeOptions(new ConsumeOptions()
                     {
                         Queue = "hello",
                         Exchange = "hello",
                         RoutingKey = "hello"
                     });
-                    context.AddProducer().AddMessage<HelloMessage>().UsePublishOptions(new PublishOptions()
+                    builder.AddProducer().AddMessage<HelloMessage>().UsePublishOptions(new PublishOptions()
                     {
                         Exchange = "hello",
                         RoutingKey = "hello"
