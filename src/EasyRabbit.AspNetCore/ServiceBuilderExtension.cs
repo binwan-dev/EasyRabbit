@@ -1,11 +1,10 @@
 using System;
 using EasyRabbit;
 using EasyRabbit.AspNetCore;
-using EasyRabbit.Extensions.Newtonsoft.Json;
+using EasyRabbit.Basic;
 using EasyRabbit.Producting;
 using EasyRabbit.Publishes;
 using EasyRabbit.Utils;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -21,6 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<RabbitMQBuilder>(builder);
             services.AddSingleton<ILoggerFactory, MicrosoftLoggerFactory>();
             services.AddSingleton<IObjectContainer, ServiceProviderObjectContainer>();
+            services.AddSingleton<IRabbitMQQueueInfomation, RabbitMQQueueInfomation>();
             builder.UseNewtonSoftJson();
 
             foreach (var consumeHandler in builder.ConsumeBuilders)

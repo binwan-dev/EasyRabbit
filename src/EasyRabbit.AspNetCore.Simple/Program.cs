@@ -5,6 +5,7 @@ using EasyRabbit.Producting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading;
+using EasyRabbit.Basic;
 
 namespace EasyRabbit.AspNetCore.Test
 {
@@ -17,31 +18,31 @@ namespace EasyRabbit.AspNetCore.Test
                 {
                     builder.AddGlobalServerOptions(new ServerOptions()
                     {
-                        Host = "192.168.3.253",
-                        Port = 6672,
+                        Host = "staging-mq01.fnlinker.com",
+                        Port = 5672,
                         UserName = "admin",
-                        Password = "123456",
-                        VirtualHost = "dev"
+                        Password = "1qa@WS3ed",
+                        VirtualHost = "staging"
                     });
-                    builder.AddConsumer().AddHandler<HelloHandler>().UseConsumeOptions(new ConsumeOptions()
-                    {
-                        Queue = "hello",
-                        Exchange = "hello",
-                        RoutingKey = "hello"
-                    });
-                    builder.AddProducer().AddMessage<HelloMessage>().UsePublishOptions(new PublishOptions()
-                    {
-                        Exchange = "hello",
-                        RoutingKey = "hello"
-                    });
+                    // builder.AddConsumer().AddHandler<HelloHandler>().UseConsumeOptions(new ConsumeOptions()
+                    // {
+                    //     Queue = "hello",
+                    //     Exchange = "hello",
+                    //     RoutingKey = "hello"
+                    // });
+                    // builder.AddProducer().AddMessage<HelloMessage>().UsePublishOptions(new PublishOptions()
+                    // {
+                    //     Exchange = "hello",
+                    //     RoutingKey = "hello"
+                    // });
                 })
                 .Build()
                 .UseEasyRabbit();
 
-            var publisher = host.Services.GetService<IMessagePublisher>();
-            publisher.Publish(new HelloMessage() { Name = "test" });
-            Thread.Sleep(5000);
-            Console.WriteLine("Hello World!");
+            var queueInfomation = host.Services.GetService<IRabbitMQQueueInfomation>();
+            // var publisher = host.Services.GetService<IMessagePublisher>();
+            // publisher.Publish(new HelloMessage() { Name = "test" });
+            Console.WriteLine(queueInfomation.GetMessageCount("businessQueueA"));
         }
     }
 }
