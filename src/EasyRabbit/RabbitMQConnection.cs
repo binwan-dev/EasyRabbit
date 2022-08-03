@@ -39,7 +39,7 @@ namespace EasyRabbit
                 _logger.Error(ex, "The rabbit mq service cannot connect! ServerOptions: {0}", _serverOptions.ToString());
                 if (isAutoConnect)
                 {
-                    _logger.Info($"Auto connect is enable, the service will reconnect to the rabbit mq server after {_reconnectMilliSeconds} ms!");
+                    _logger.Info($"Auto connect is enable, the service will reconnect to the rabbit mq ser     ver after {_reconnectMilliSeconds} ms!");
                     tryReConnect();
                 }
                 else
