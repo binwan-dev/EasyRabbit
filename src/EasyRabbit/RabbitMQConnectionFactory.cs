@@ -21,14 +21,16 @@ namespace EasyRabbit
             var key = $"{options.Host}:{options.Port}/{virtualHost}";
             if (_connectionDic.TryGetValue(key, out RabbitMQConnection connection))
             {
-		if (!connection.Connection.IsOpen)
+		if(connected!=null)
+                    connection.Connected += connected;
+
+                if (!connection.Connection.IsOpen)
 		{
 		    lock (_connectLock)
 		    {
                         if (!connection.Connection.IsOpen)
                         {
                             connection.Connect();
-			    connected(connection);
                         }
                     }
 		}
@@ -41,7 +43,8 @@ namespace EasyRabbit
                     return GetOrCreateConnection(options, virtualHost, connected);
 
                 connection = new RabbitMQConnection(options, virtualHost);
-                connection.Connected += connected;
+		if(connected!=null)
+		    connection.Connected += connected;
                 connection.Connect();
                 _connectionDic.TryAdd(key, connection);
             }
