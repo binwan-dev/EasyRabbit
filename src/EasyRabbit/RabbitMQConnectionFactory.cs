@@ -16,14 +16,11 @@ namespace EasyRabbit
             _connectionDic = new ConcurrentDictionary<string, RabbitMQConnection>();
         }
 
-        public RabbitMQConnection GetOrCreateConnection(ServerOptions options, string virtualHost, Action<RabbitMQConnection> connected = null)
+        public RabbitMQConnection GetConnection(ServerOptions options, string virtualHost)
         {
             var key = $"{options.Host}:{options.Port}/{virtualHost}";
             if (_connectionDic.TryGetValue(key, out RabbitMQConnection connection))
             {
-		if(connected!=null)
-                    connection.Connected += connected;
-
                 if (!connection.Connection.IsOpen)
 		{
 		    lock (_connectLock)
@@ -40,11 +37,9 @@ namespace EasyRabbit
             lock (_newLock)
             {
 		if(_connectionDic.ContainsKey(key))
-                    return GetOrCreateConnection(options, virtualHost, connected);
+                    return GetConnection(options, virtualHost);
 
                 connection = new RabbitMQConnection(options, virtualHost);
-		if(connected!=null)
-		    connection.Connected += connected;
                 connection.Connect();
                 _connectionDic.TryAdd(key, connection);
             }

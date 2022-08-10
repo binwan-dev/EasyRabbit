@@ -10,7 +10,7 @@ namespace EasyRabbit
     {
         private readonly ServerOptions _serverOptions;
         private readonly string _virtualHost;
-        public event Action<RabbitMQConnection> Connected;
+        public event Action<RabbitMQConnection> ReConnected;
         private readonly ILogger _logger;
         private IConnection _connection;
         private int _reconnectMilliSeconds = 600;
@@ -31,8 +31,6 @@ namespace EasyRabbit
             try
             {
                 _connection = RabbitMQUtils.CreateNewConnection(_serverOptions, _virtualHost);
-                if (Connected != null)
-                    Connected.Invoke(this);
             }
             catch (Exception ex)
             {
@@ -76,8 +74,7 @@ namespace EasyRabbit
         private void reConnect()
         {
             _connection = RabbitMQUtils.CreateNewConnection(_serverOptions, _virtualHost);
-            if (Connected != null)
-                Connected(this);
+            ReConnected?.Invoke(this);
             _reconnectTimes = 1;
         }
 

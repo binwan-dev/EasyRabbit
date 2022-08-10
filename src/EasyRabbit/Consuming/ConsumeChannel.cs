@@ -35,7 +35,9 @@ namespace EasyRabbit.Consuming
 
             _metadata = metadata;
             _logger = ObjectContainerFactory.ObjectContainer.Resolve<ILoggerFactory>().CreateLogger<ConsumeChannel>();
-            _connection = RabbitMQConnectionFactory.Instance.GetOrCreateConnection(_metadata.ServerOptions, _metadata.ConsumeOptions.VirtualHost, Binding);
+            _connection = RabbitMQConnectionFactory.Instance.GetConnection(_metadata.ServerOptions, _metadata.ConsumeOptions.VirtualHost);
+            _connection.ReConnected += Binding;
+            Binding(_connection);
         }
 
         public RabbitMQConnection Connection => _connection;
