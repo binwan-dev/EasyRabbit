@@ -14,7 +14,7 @@ namespace EasyRabbit.Basic
 	    if(options==null)
                 options = ServerOptions.Default ?? throw new ArgumentNullException("ServerOptions");
 
-            var connection = RabbitMQConnectionFactory.Instance.GetOrCreateConnection(options, options.VirtualHost);
+            var connection = RabbitMQConnectionFactory.Instance.GetConnection(options, options.VirtualHost);
             using (var channel = connection.Connection.CreateModel())
             {
                 return channel.QueueDeclarePassive(queue).MessageCount;
